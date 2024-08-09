@@ -70,27 +70,20 @@ exports.login = (req, res) => {
   });
 };
 
+// authController.js
 exports.authenticate = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
+  // Lógica para autenticar al usuario y asignar req.userId
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'Token no proporcionado' });
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Token no proporcionado o formato incorrecto' });
-  }
+  // Supongamos que tienes una función para verificar el token
+  verifyToken(token, (err, decoded) => {
+    if (err) return res.status(401).json({ message: 'Token inválido' });
 
-  const token = authHeader.split(' ')[1];
-
-  jwt.verify(token, secret, (err, decoded) => {
-    if (err) {
-      console.error('Error al verificar el token:', err);
-      return res.status(401).json({ message: 'Token inválido', error: err.message });
-    }
-
-    req.userId = decoded.id;
+    req.userId = decoded.userId; // Asegúrate de que esta línea esté configurada correctamente
     next();
   });
 };
-
-
 
 // Cambiar la contraseña del usuario
 exports.changePassword = (req, res) => {

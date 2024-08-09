@@ -3,7 +3,7 @@ const Article = require('../models/Article');
 // Crear un nuevo artículo
 exports.create = (req, res) => {
   const { title, content } = req.body;
-  const id_usuario = req.userId;
+  const id_usuario = req.userId; // O null si no se usa autenticación
 
   if (!title || !content) {
     return res.status(400).json({ message: 'Todos los campos son requeridos' });
@@ -19,9 +19,8 @@ exports.create = (req, res) => {
 
 // Obtener todos los artículos del usuario
 exports.getAll = (req, res) => {
-  const id_usuario = req.userId;
-
-  Article.findAllByUserId(id_usuario, (err, results) => {
+  // id_usuario ya no se usa si no hay autenticación
+  Article.findAll((err, results) => {
     if (err) {
       return res.status(500).json({ message: 'Error al obtener los artículos', error: err });
     }
@@ -32,9 +31,8 @@ exports.getAll = (req, res) => {
 // Obtener un artículo por ID
 exports.getById = (req, res) => {
   const { id } = req.params;
-  const id_usuario = req.userId;
-
-  Article.findById(id, id_usuario, (err, results) => {
+  // id_usuario ya no se usa si no hay autenticación
+  Article.findById(id, null, (err, results) => {
     if (err) {
       return res.status(500).json({ message: 'Error al obtener el artículo', error: err });
     }
@@ -49,13 +47,13 @@ exports.getById = (req, res) => {
 exports.update = (req, res) => {
   const { id } = req.params;
   const { title, content } = req.body;
-  const id_usuario = req.userId;
+  // id_usuario ya no se usa si no hay autenticación
 
   if (!title || !content) {
     return res.status(400).json({ message: 'Todos los campos son requeridos' });
   }
 
-  Article.update(id, { title, content }, id_usuario, (err, result) => {
+  Article.update(id, { title, content }, null, (err, result) => {
     if (err) {
       return res.status(500).json({ message: 'Error al actualizar el artículo', error: err });
     }
@@ -69,9 +67,9 @@ exports.update = (req, res) => {
 // Eliminar un artículo por ID
 exports.delete = (req, res) => {
   const { id } = req.params;
-  const id_usuario = req.userId;
+  // id_usuario ya no se usa si no hay autenticación
 
-  Article.delete(id, id_usuario, (err, result) => {
+  Article.delete(id, null, (err, result) => {
     if (err) {
       return res.status(500).json({ message: 'Error al eliminar el artículo', error: err });
     }

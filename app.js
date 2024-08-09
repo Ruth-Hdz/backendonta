@@ -31,6 +31,7 @@ app.use('/auth', authRoutes);
 app.use('/category', categoryRoutes);
 app.use('/article', articleRoutes);
 app.use('/user', userRoutes); // Usar las rutas del usuario
+app.use('/api', categoryRoutes); // Verifica que el prefijo '/api' sea correcto
 
 // Middleware para manejar errores y rutas no encontradas
 app.use((req, res, next) => {

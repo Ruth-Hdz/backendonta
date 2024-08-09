@@ -1,4 +1,3 @@
-// models/Category.js
 const db = require('../config/db');
 
 class Category {
@@ -7,26 +6,20 @@ class Category {
     db.query(sql, [nombre, icono, color, id_usuario], callback);
   }
 
-  static findAllByUserId(id_usuario, callback) {
-    const sql = 'SELECT * FROM Categoria WHERE id_usuario = ?';
-    db.query(sql, [id_usuario], callback);
+  static findAll(callback) {
+    const sql = 'SELECT * FROM Categoria'; // Ajusta la consulta si no necesitas filtrar por id_usuario
+    db.query(sql, [], callback);
   }
-
-  static findById(id, id_usuario, callback) {
-    const sql = 'SELECT * FROM Categoria WHERE id = ? AND id_usuario = ?';
-    db.query(sql, [id, id_usuario], callback);
+ 
+  static update(id, { nombre, icono, color }, callback) {
+    const sql = 'UPDATE Categoria SET nombre = ?, icono = ?, color = ? WHERE id = ?';
+    db.query(sql, [nombre, icono, color, id], callback);
   }
-
-  static update(id, { nombre, icono, color }, id_usuario, callback) {
-    const sql = 'UPDATE Categoria SET nombre = ?, icono = ?, color = ? WHERE id = ? AND id_usuario = ?';
-    db.query(sql, [nombre, icono, color, id, id_usuario], callback);
-  }
-
+  
   static delete(id, callback) {
     const sql = 'DELETE FROM Categoria WHERE id = ?';
     db.query(sql, [id], callback);
   }
-   
 }
 
 module.exports = Category;
