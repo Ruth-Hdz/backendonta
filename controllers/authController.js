@@ -7,24 +7,50 @@ const saltRounds = 10;
 const secret = process.env.SECRET_KEY;
 
 // Registrar un nuevo usuario
-exports.register = (req, res) => {
-  const { nombre, email, contraseña, acepta_terminos } = req.body;
+exports.register = async (req, res) => {
+  const { nombre, email, contraseña, acepta_terminos, firebase_uid } = req.body;
 
-  if (!nombre || !email || !contraseña || acepta_terminos === undefined) {
-    res.status(400).send('Todos los campos son requeridos');
-    return;
+  if (!nombre || !email || !contraseña || !firebase_uid) {
+    return res.status(400).json({ error: 'Todos los campos son requeridos' });
   }
 
-  const hashedPassword = bcrypt.hashSync(contraseña, saltRounds);
+  try {
+    // Check if user already exists
+    const existingUser = await new Promise((resolve, reject) => {
+      User.findByEmail(email, (err, results) => {
+        if (err) return reject(err);
+        resolve(results.length > 0 ? results[0] : null);
+      });
+    });
 
-  const query = 'INSERT INTO Usuario (nombre, email, contraseña, acepta_terminos) VALUES (?, ?, ?, ?)';
-  db.query(query, [nombre, email, hashedPassword, acepta_terminos], (err, result) => {
-    if (err) {
-      res.status(500).send('Error al registrar el usuario');
-      return;
+    if (existingUser) {
+      return res.status(400).json({ error: 'El usuario ya existe' });
     }
-    res.status(201).send('Usuario registrado con éxito');
-  });
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(contraseña, 10);
+
+    // Create new user
+    const newUser = {
+      nombre,
+      email,
+      contraseña: hashedPassword,
+      acepta_terminos,
+      firebase_uid
+    };
+
+    await new Promise((resolve, reject) => {
+      User.create(newUser, (err, result) => {
+        if (err) return reject(err);
+        resolve(result);
+      });
+    });
+
+    res.status(201).json({ message: 'Usuario registrado exitosamente' });
+  } catch (error) {
+    console.error('Error en el controlador de registro:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
 };
 
 // Iniciar sesión
